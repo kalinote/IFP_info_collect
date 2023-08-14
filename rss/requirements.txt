@@ -1,0 +1,6 @@
+jieba==0.42.1
+numpy==1.25.2
+networkx==2.8.8
+textrank4zh==0.3
+feedparser==6.0.10
+scipy==1.11.1
