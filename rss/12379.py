@@ -1,16 +1,21 @@
 # 国家突发事件预警信息发布网
-import time
 import feedparser
 import hashlib
 import json
+from datetime import datetime
 from textrank4zh import TextRank4Keyword, TextRank4Sentence
 from crawlab import save_item
-
+from kafka import KafkaProducer
 
 if __name__ == '__main__':
     rss_url = 'http://192.168.238.128:1200/12379'
-
     feed = feedparser.parse(rss_url)
+
+    #region Kafka配置
+    bootstrap_servers = 'kafka-server:9092'
+    producer = KafkaProducer(bootstrap_servers=bootstrap_servers)
+    topic = 'rss_handle'
+    #endregion
 
     # 遍历解析后的条目
     for entry in feed.entries:
@@ -19,7 +24,7 @@ if __name__ == '__main__':
         data['title'] = entry.title
         data['link'] = entry.link
         data['post_content'] = entry.description
-        data['post_time'] = entry.published
+        data['post_time'] = datetime.strptime(entry.published, '%a, %d %b %Y %H:%M:%S %Z').strftime('%Y-%m-%d %H:%M:%S')
         data['important_keywords'] = []
 
         tr4w = TextRank4Keyword()
@@ -42,9 +47,27 @@ if __name__ == '__main__':
         for item in tr4s.get_key_sentences(num=10):
             temp_abstract[item.sentence] = item.weight
         data['abstract'] = json.dumps(max(temp_abstract, key=lambda k: temp_abstract[k]), ensure_ascii=False)
-        data['gather_time'] = time.time()
+        data['gather_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         data['deduplication_id'] = hashlib.md5((str(data['post_time'])+str(data['post_content'])+str(data['title'])).encode('utf-8')).hexdigest()
         
+        # other meta
+        data['table_type'] = 'rss'
+        data['platform'] = '国家突发事件预警信息发布网'
+        data['rss_type'] = '预警信息'
 
+        #region 推送kafka
+        push_kafka_success = False
+        try:
+            future = producer.send(topic, json.dumps(data).encode('utf-8'))
+            # future.get(timeout=100)
+            producer.flush()
+            push_kafka_success = True
+        except Exception as e:
+            print('kafka推送报错', str(e))
+            push_kafka_success = False
+        #endregion
+
+        data['push_kafka_success'] = push_kafka_success
         print(f'添加: {data}')
         save_item(data)
+    producer.close()
