@@ -1,14 +1,28 @@
-# 国家突发事件预警信息发布网
+# 中国地震台信息获取
+# --type 参数	类型
+#        1     最近 24 小时地震信息
+#        2     最近 48 小时地震信息
+#        5     最近一年 3.0 级以上地震信息
+#        7     最近一年 3.0 级以下地震
+#        8     最近一年 4.0 级以上地震信息
+#        9     最近一年 5.0 级以上地震信息
+#        0     最近一年 6.0 级以上地震信息
 import time
 import feedparser
 import hashlib
 import json
+import argparse
 from textrank4zh import TextRank4Keyword, TextRank4Sentence
 from crawlab import save_item
 
-
 if __name__ == '__main__':
-    rss_url = 'http://192.168.238.128:1200/12379'
+    #region 参数解析
+    parser = argparse.ArgumentParser(description='中国地震台信息收集')
+    parser.add_argument('--type', choices=['1', '2', '5', '7', '8', '9', '0'], default='2', help="""1:最近 24 小时地震信息/2:最近 48 小时地震信息/5:最近一年 3.0 级以上地震信息/7:最近一年 3.0 级以下地震/8:最近一年 4.0 级以上地震信息/9:最近一年 5.0 级以上地震信息/0:最近一年 6.0 级以上地震信息""")
+    args = parser.parse_args()
+    #endregion
+
+    rss_url = f'http://192.168.238.128:1200/earthquake/ceic/{args.type}/'
 
     feed = feedparser.parse(rss_url)
 

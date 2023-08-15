@@ -1,14 +1,21 @@
-# 国家突发事件预警信息发布网
+# 中国气象台全国气象预警信息获取
+# --province 需要获取的省份
 import time
 import feedparser
 import hashlib
 import json
+import argparse
 from textrank4zh import TextRank4Keyword, TextRank4Sentence
 from crawlab import save_item
 
-
 if __name__ == '__main__':
-    rss_url = 'http://192.168.238.128:1200/12379'
+    #region 参数解析
+    parser = argparse.ArgumentParser(description='中国气象台全国气象预警')
+    parser.add_argument('--province', default='四川省', help="""需要获取的省份""")
+    args = parser.parse_args()
+    #endregion
+
+    rss_url = f'http://192.168.238.128:1200/weatheralarm/{args.province}/'
 
     feed = feedparser.parse(rss_url)
 
