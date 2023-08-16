@@ -38,7 +38,7 @@ if __name__ == '__main__':
         important_keywords = []
         for phrase in tr4w.get_keyphrases(keywords_num=5, min_occur_num=2):
             important_keywords.append(phrase)
-        data['important_keywords'] = json.dumps(important_keywords, ensure_ascii=False)
+        data['important_keywords'] = important_keywords
 
         tr4s = TextRank4Sentence()
         tr4s.analyze(text=entry.description, lower=True, source = 'all_filters')
@@ -54,6 +54,7 @@ if __name__ == '__main__':
         data['table_type'] = 'rss'
         data['platform'] = '国家突发事件预警信息发布网'
         data['rss_type'] = '预警信息'
+        data['meta'] = ['短信息', '官方信息']
 
         #region 推送kafka
         push_kafka_success = False
