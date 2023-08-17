@@ -61,7 +61,8 @@ if __name__ == '__main__':
         temp_abstract = {}
         for item in tr4s.get_key_sentences(num=10):
             temp_abstract[item.sentence] = item.weight
-        data['abstract'] = json.dumps(max(temp_abstract, key=lambda k: temp_abstract[k]), ensure_ascii=False)
+        if temp_abstract:
+            data['abstract'] = json.dumps(max(temp_abstract, key=lambda k: temp_abstract[k]), ensure_ascii=False)
         data['gather_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         data['deduplication_id'] = hashlib.md5((str(data['post_time'])+str(data['post_content'])+str(data['title'])).encode('utf-8')).hexdigest()
         

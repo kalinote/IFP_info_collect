@@ -1,8 +1,4 @@
-# 国家广播电视总局信息获取
-# --type 参数	类型
-#        112     总局要闻
-#        113     公告公示
-#        114     工作动态
+# 中国工业和信息化部信息收集
 
 import feedparser
 import hashlib
@@ -16,12 +12,41 @@ from bs4 import BeautifulSoup
 
 if __name__ == '__main__':
     #region 参数解析
-    parser = argparse.ArgumentParser(description='国家广播电视总局信息获取')
-    parser.add_argument('--type', choices=['112', '113', '114'], default='112', help="112: 总局要闻 | 113: 公告公示 | 114: 工作动态")
+    parser = argparse.ArgumentParser(description='中国工业和信息化部信息收集')
+
+    subparsers = parser.add_subparsers(dest='subcommand', help='类型')
+
+    # 政策解读
+    zcjd_parser = subparsers.add_parser('zcjd', help='政策解读')
+
+    # 文件发布
+    wjfb_parser = subparsers.add_parser('wjfb', help='文件发布')
+    wjfb_parser.add_argument('--ministry', type=str, default='ghs', required=True, help='必选-部门缩写，可以在对应 URL 中获取')
+
+    # 意见征集
+    yjzj_parser = subparsers.add_parser('yjzj', help='意见征集')
+
+    # 文件公示
+    wjgs_parser = subparsers.add_parser('wjgs', help='文件公示')
+
+    # 政策文件
+    zcwj_parser = subparsers.add_parser('zcwj', help='政策文件')
+
     args = parser.parse_args()
     #endregion
 
-    rss_url = f'http://192.168.238.128:1200/gov/nrta/news/{args.type}/'
+    # 默认政策解读
+    
+    if args.subcommand == 'wjfb':
+        rss_url = f'http://192.168.238.128:1200/gov/miit/wjfb/{args.ministry}/'
+    elif args.subcommand == 'yjzj':
+        rss_url = f'http://192.168.238.128:1200/gov/miit/yjzj/'
+    elif args.subcommand == 'wjgs':
+        rss_url = f'http://192.168.238.128:1200/gov/miit/wjgs/'
+    elif args.subcommand == 'zcwj':
+        rss_url = f'http://192.168.238.128:1200/gov/miit/zcwj/'
+    else:
+        rss_url = f'http://192.168.238.128:1200/gov/miit/zcjd/'
     feed = feedparser.parse(rss_url)
     
     #region Kafka配置
@@ -69,7 +94,7 @@ if __name__ == '__main__':
         
         # other meta
         data['table_type'] = 'rss'
-        data['platform'] = '国家广播电视总局'
+        data['platform'] = '中国工业和信息化部'
         data['rss_type'] = '政务消息'
         data['meta'] = ['官方信息']
 
