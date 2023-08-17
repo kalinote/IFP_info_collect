@@ -24,7 +24,10 @@ if __name__ == '__main__':
         data['title'] = entry.title
         data['link'] = entry.link
         data['post_content'] = entry.description
-        data['post_time'] = datetime.strptime(entry.published, '%a, %d %b %Y %H:%M:%S %Z').strftime('%Y-%m-%d %H:%M:%S')
+        if not entry.published == 'Invalid Date':
+            data['post_time'] = datetime.strptime(entry.published, '%a, %d %b %Y %H:%M:%S %Z').strftime('%Y-%m-%d %H:%M:%S')
+        else:
+            data['post_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         data['important_keywords'] = []
 
         tr4w = TextRank4Keyword()
