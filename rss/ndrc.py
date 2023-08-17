@@ -1,12 +1,8 @@
-# 中国地震台信息获取
+# 中华人民共和国国家发展和改革委员会信息收集
 # --type 参数	类型
-#        1     最近 24 小时地震信息
-#        2     最近 48 小时地震信息
-#        5     最近一年 3.0 级以上地震信息
-#        7     最近一年 3.0 级以下地震
-#        8     最近一年 4.0 级以上地震信息
-#        9     最近一年 5.0 级以上地震信息
-#        0     最近一年 6.0 级以上地震信息
+# 新闻发布	通知通告	委领导动态	司局动态	地方动态
+# xwfb      tzgg        wlddt       sjdt        dfdt
+
 import feedparser
 import hashlib
 import json
@@ -19,12 +15,12 @@ from bs4 import BeautifulSoup
 
 if __name__ == '__main__':
     #region 参数解析
-    parser = argparse.ArgumentParser(description='中国地震台信息收集')
-    parser.add_argument('--type', choices=['1', '2', '5', '7', '8', '9', '0'], default='2', help="""1:最近 24 小时地震信息/2:最近 48 小时地震信息/5:最近一年 3.0 级以上地震信息/7:最近一年 3.0 级以下地震/8:最近一年 4.0 级以上地震信息/9:最近一年 5.0 级以上地震信息/0:最近一年 6.0 级以上地震信息""")
+    parser = argparse.ArgumentParser(description='中华人民共和国国家发展和改革委员会信息收集')
+    parser.add_argument('--type', choices=['xwfb', 'tzgg', 'wlddt', 'sjdt', 'dfdt'], default='112', help="xwfb: 新闻发布 | tzgg: 通知通告 | wlddt: 委领导动态 | sjdt: 司局动态 | dfdt: 地方动态")
     args = parser.parse_args()
     #endregion
 
-    rss_url = f'http://192.168.238.128:1200/earthquake/ceic/{args.type}/'
+    rss_url = f'http://192.168.238.128:1200/gov/ndrc/xwdt/{args.type}/'
     feed = feedparser.parse(rss_url)
     
     #region Kafka配置
@@ -71,9 +67,9 @@ if __name__ == '__main__':
         
         # other meta
         data['table_type'] = 'rss'
-        data['platform'] = '中国地震台'
-        data['rss_type'] = '预警信息'
-        data['meta'] = ['短信息', '官方信息']
+        data['platform'] = '中华人民共和国国家发展和改革委员会'
+        data['rss_type'] = '政务消息'
+        data['meta'] = ['官方信息']
 
         #region 推送kafka
         push_kafka_success = False

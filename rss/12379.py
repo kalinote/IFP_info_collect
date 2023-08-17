@@ -6,6 +6,7 @@ from datetime import datetime
 from textrank4zh import TextRank4Keyword, TextRank4Sentence
 from crawlab import save_item
 from kafka import KafkaProducer
+from bs4 import BeautifulSoup
 
 if __name__ == '__main__':
     rss_url = 'http://192.168.238.128:1200/12379'
@@ -31,7 +32,7 @@ if __name__ == '__main__':
         data['important_keywords'] = []
 
         tr4w = TextRank4Keyword()
-        tr4w.analyze(text=entry.description, lower=True, window=2)
+        tr4w.analyze(text=BeautifulSoup(entry.description, 'html.parser').get_text(), lower=True, window=2)
 
         keywords = {}
         for item in tr4w.get_keywords(20, word_min_len=2):
@@ -44,7 +45,7 @@ if __name__ == '__main__':
         data['important_keywords'] = important_keywords
 
         tr4s = TextRank4Sentence()
-        tr4s.analyze(text=entry.description, lower=True, source = 'all_filters')
+        tr4s.analyze(text=BeautifulSoup(entry.description, 'html.parser').get_text(), lower=True, source = 'all_filters')
 
         temp_abstract = {}
         for item in tr4s.get_key_sentences(num=10):
