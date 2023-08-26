@@ -6,3 +6,4 @@ feedparser==6.0.10
 scipy==1.11.1
 kafka-python==2.0.2
 beautifulsoup4==4.12.2
+openai==0.27.9

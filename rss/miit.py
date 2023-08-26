@@ -1,5 +1,4 @@
 # 中国工业和信息化部信息收集
-
 import feedparser
 import hashlib
 import json
