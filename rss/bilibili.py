@@ -180,7 +180,7 @@ if __name__ == '__main__':
     data['table_type'] = 'rss'
     data['rss_type'] = 'bilibili'
     data['platform'] = rss_type
-    data['meta'] = ['低关联度内容', '内容由AI生成', '谨慎判断生成内容真实性']
+    data['meta'] = ['低关联度内容'] + (['包含AI生成内容', '谨慎判断生成内容真实性'] if not args.no_summarize else [])
 
     #region 推送kafka
     push_kafka_success = False
