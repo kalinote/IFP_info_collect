@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 
 SUMMARIZE_PROMPT = "你需要帮用户尽可能全面地总结这些信息，这些信息之间有可能是相互不关联的(比如twitter热搜等)，也有可能是相互有关的(比如一整篇新闻报道等)，无论如何，你需要尽可能覆盖所有内容，文字可以多一些，并且以自然通顺的语言进行总结报告。"
 ABSTRACT_PROMPT = "你需要使用简洁的语言总结全文摘要，尽量控制在2-3句话内。"
-TAGGING_PROMPT = """你需要对这些信息打上tag，这些tag可以是文章内的关键词，也可以 是与文章有关的词汇，在tag后面，你需要添加tag在文章中的权重，权重值为在0.01-3.00之间的浮点数，tag最多不超过15个。你需要按照如下格式返回，需要保证能被json解析: 
+TAGGING_PROMPT = """你需要对这些信息打上tag，这些tag可以是文章内的关键词，也可以 是与文章有关的词汇，在tag后面，你需要添加tag在文章中的权重，权重值为在0.01-1.50之间的浮点数，tag最多不超过15个。你需要按照如下格式返回，需要保证能被json解析: 
 {
     "tags": {
         "<tag1>": "<权重1>",
@@ -43,7 +43,7 @@ def ai_summarize(system_prompt, content):
                 openai.proxy = 'http://192.168.238.1:7890'
     except Exception as e:
         print(e)
-        return e
+        return ''
 
     try:
         chat_completion = openai.ChatCompletion.create(model="gpt-3.5-turbo-16k", messages=[
@@ -58,7 +58,7 @@ def ai_summarize(system_prompt, content):
             ], temperature=0)
     except Exception as e:
         print(e)
-        return e
+        return ''
 
     return json.loads(str(chat_completion))['choices'][0]['message']['content']
 
@@ -160,10 +160,10 @@ if __name__ == '__main__':
         keywords = json.loads(ai_summarize(TAGGING_PROMPT, raw_content))
     except Exception as e:
         print('标签生成报错', str(e))
-        keywords = {}
+        keywords = {'标签生成错误': 0.0001}
     data['keywords'] = json.dumps(keywords.get('tags', {}), ensure_ascii=False)
 
-    if args.no_summarize:
+    if args.no_summarize or summarize == '':
         summarize = data['post_content']
     tr4w = TextRank4Keyword()
     tr4w.analyze(text=BeautifulSoup(summarize, 'html.parser').get_text(), lower=True, window=2)
