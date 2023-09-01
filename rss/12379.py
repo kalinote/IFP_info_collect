@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
         temp_abstract = {}
         for item in tr4s.get_key_sentences(num=10):
-            temp_abstract[item.sentence] = item.weight
+            temp_abstract[item.sentence] = item.weight * 0.1
         if temp_abstract:
             data['abstract'] = json.dumps(max(temp_abstract, key=lambda k: temp_abstract[k]), ensure_ascii=False)
         data['gather_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
